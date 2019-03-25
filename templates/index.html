@@ -1,0 +1,110 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<!-- datos en formulario y tabla-->
+<div class="row">
+    <div class="col-md-5 offset-md-3"> <!-- col-md-11 = tamaño del cuadro, offset-md-4 =indica que estara separado 4 columnas-->
+        <!-- funcion para mensajes de validación se guarda en una variable el metodo-->
+        {% with mensajes = get_flashed_messages() %}
+        {% if mensajes %}
+        <!-- si existe mensajes-->
+        {% for mensaje in mensajes%}
+        <!-- for para recorrer todos los mensajes-->
+        <!-- codigo extraido de bootstrap para alertas-->
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{mensaje}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <div class="card card-body">
+            <form action="/add_tutoria" method="POST">
+                <div class="form-group">
+                    <input type="text" name="id_profesor" placeholder="Id del Profesor" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="nombre_profesor" placeholder="Nombre del profesor" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="apellidos_profesor" placeholder="Apellidos del profesor"
+                        class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="tema_tutoria" placeholder="Tema de la tutoria" class="form-control">
+                </div>
+                <div class="form-group">
+                    <select name="lista_dia" class="form-control">
+                        <option value="" disabled selected>--SLECCIONE UN DIA--</option>
+                        <option value="lunes">Lunes</option>
+                        <option value="martes">Martes</option>
+                        <option value="miercoles">Miercoles</option>
+                        <option value="jueves">Jueves</option>
+                        <option value="viernes">Viernes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="hora_inicio" placeholder="Hora inicio de la tutoria" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="hora_fin" placeholder="Hora fin de la tutoria" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="lugar_tutoria" placeholder="Lugar de la tutoria" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="email_profesor" placeholder="E-mail del profesor" class="form-control">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-11 pt-4">
+        <table class="table table-striped table-bordered bg-white table-sm">
+            <thead>
+                <tr>
+                    <td>Id Profesor</td>
+                    <td>Nombre</td>
+                    <td>Apellidos</td>
+                    <td>Tema Tutoria</td>
+                    <td>Dia Tutoria</td>
+                    <td>Hora Inicio</td>
+                    <td>Hora Fin</td>
+                    <td>Lugar Tutoria</td>
+                    <td>Email Profesor</td>
+                    <td>Editar / Borrar</td>
+                </tr>
+            </thead>
+            <!-- datos de la consulta SQL-->
+            <tbody>
+                {% for tuto in tutoria %}
+                <tr>
+                    <!-- for que recorre la tupla de la consulta y devuelve un indice-->
+                    <td>{{ tuto.1 }}</td>
+                    <td>{{ tuto.2 }}</td>
+                    <td>{{ tuto.3 }}</td>
+                    <td>{{ tuto.4 }}</td>
+                    <td>{{ tuto.9 }}</td>
+                    <td>{{ tuto.5 }}</td>
+                    <td>{{ tuto.6 }}</td>
+                    <td>{{ tuto.7 }}</td>
+                    <td>{{ tuto.8 }}</td>
+                    <td>
+                        <a href="/editar/{{tuto.0}}" class="btn btn-secondary">Editar</a>
+                        <!-- el {{tuto.0}} devuelve el indice 0 que es el ID-->
+                        <a href="/borrar/{{tuto.0}}" class="btn btn-danger btn-delete">Borrar</a>
+                        <!-- el {{tuto.0}} devuelve el indice 0 que es el ID-->
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
