@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_mysqldb import MySQL
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_mysqldb import MySQL, MySQLdb
+import bcrypt #encruptación
 
 aplicacion = Flask(__name__)
 #Coneción a la base de datos en que servidor y usuario contraseña y la base de datos.
@@ -7,10 +8,65 @@ aplicacion.config['MYSQL_HOST'] = 'localhost'
 aplicacion.config['MYSQL_USER'] = 'root'
 aplicacion.config['MYSQL_PASSWORD'] = 'admin'
 aplicacion.config['MYSQL_DB'] = 'flasktutorias'
+aplicacion.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(aplicacion)
 
 # configuraciones mysecretkey para flash
 aplicacion.secret_key = 'mysecretkey'
+
+#inicio configuración paginas para registar y logearse:
+@aplicacion.route('/inicio')
+def inicio():
+    return render_template('inicio.html')
+
+@aplicacion.route('/registrar', methods=['GET', 'POST'])
+def registro():
+    if request.method == 'GET':
+        return render_template('registrar.html')
+    else:
+        nombreRegistro = request.form['nombre']
+        emailRegistro = request.form['email']
+        contrasenaRegistro = request.form['password'].encode('utf-8')
+        hash_contrasena = bcrypt.hashpw(contrasenaRegistro, bcrypt.gensalt())
+
+        cur = mysql.connection.cursor()
+        cur.execute('INSERT INTO usuario (nombre_usuario, email_usuario, pass_usuario) VALUES (%s, %s, %s)', (nombreRegistro, emailRegistro, hash_contrasena))
+        mysql.connection.commit()
+        session['name'] = nombreRegistro
+        session['email'] = emailRegistro
+        return redirect(url_for('inicio'))
+
+@aplicacion.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        emailRegistro = request.form['email']
+        contrasenaRegistro = request.form['password'].encode('utf-8')
+
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('SELECT * FROM usuario WHERE email_usuario =%s', (emailRegistro,))
+        user = cur.fetchone()
+        cur.close()
+
+        if len(user) > 0:
+            if bcrypt.hashpw(contrasenaRegistro, user['pass_usuario'].encode('utf-8')) == user['pass_usuario'].encode('utf-8'):
+                session['name'] = user['nombre_usuario']
+                session['email'] = user['email_usuario']
+                return render_template('inicio.html')
+            else:
+                return "Error de contraseña"
+        else:
+            return "Error de contraseña"
+    else:
+        return render_template('login.html')
+
+@aplicacion.route('/logout')
+def logout():
+    session.clear()
+    return render_template('inicio.html')
+
+
+#fin configuración paginas para registar y logearse
+
 
 @aplicacion.route('/')
 def Index():
