@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+{% if session['name'] %}
 <!-- datos en formulario y tabla-->
 <div class="row">
     <div class="col-md-5 offset-md-3">
@@ -114,4 +115,7 @@
         </table>
     </div>
 </div>
+{% else %}
+<h1><p>No se ha logeado con ninguna cuenta</p></h1>
+{% endif %}
 {% endblock %}
