@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+{% if session['name'] %}
 <div class="col-md-5 offset-md-3">
     <div class="card card-body">
         <form action="/actualizacion/{{ tuto.0 }}" method="POST">
@@ -54,4 +55,7 @@
         </form>
     </div>
 </div>
+{% else %}
+<h1><p>No se ha logeado con ninguna cuenta</p></h1>
+{% endif %}
 {% endblock %}

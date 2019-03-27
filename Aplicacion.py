@@ -13,9 +13,11 @@ mysql = MySQL(aplicacion)
 # configuraciones mysecretkey para flash
 aplicacion.secret_key = 'mysecretkey'
 
+
 @aplicacion.route('/')
 def Index():
     return render_template('index.html')
+
 
 @aplicacion.route('/login/tutorias')
 def TablaTutorias():
@@ -51,6 +53,7 @@ def add_tutorias():
 
 # inicio configuración paginas para registar y logearse:
 
+
 @aplicacion.route('/registrar', methods=['GET', 'POST'])
 def registro():
     if request.method == 'GET':
@@ -75,20 +78,27 @@ def login():
     if request.method == 'POST':
         emailRegistro = request.form['email']
         contrasenaRegistro = request.form['password'].encode('utf-8')
-        
+
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM usuario WHERE email_usuario = %s', [emailRegistro])
+        cur.execute(
+            'SELECT * FROM usuario WHERE email_usuario = %s', [emailRegistro])
         user = cur.fetchall()
-        datosUser = user[0]
-        if bcrypt.hashpw(contrasenaRegistro, datosUser[2].encode('utf-8')) == datosUser[2].encode('utf-8'):
-            session['name'] = datosUser[1]
-            session['email'] = datosUser[0]
-            return render_template('index.html')
+
+        if not user:
+            flash('Error no existe usuario.')
+            return render_template('login.html')
         else:
-            flash('Error en contraseña.')
-            return redirect(url_for('login'))
+            datosUser = user[0]
+            if bcrypt.hashpw(contrasenaRegistro, datosUser[2].encode('utf-8')) == datosUser[2].encode('utf-8'):
+                session['name'] = datosUser[1]
+                session['email'] = datosUser[0]
+                return render_template('index.html')
+            else:
+                flash('Error en contraseña.')
+                return redirect(url_for('login'))
     else:
         return render_template('login.html')
+
 
 @aplicacion.route('/logout')
 def logout():
@@ -103,7 +113,7 @@ def get_tutoria(id):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM tutoria WHERE id_tutoria = {0}'.format(id))
     datos = cur.fetchall()
-    return render_template('edit-tutoria.html', tuto= datos[0])
+    return render_template('edit-tutoria.html', tuto=datos[0])
 
 
 @aplicacion.route('/actualizacion/<id>', methods=['POST'])
@@ -137,14 +147,16 @@ def actualizacion_tutoria(id):
         flash('Tutoria actualizada exitosamente.')
         return redirect(url_for('TablaTutorias'))
 
+
 @aplicacion.route('/borrar/<string:id>')  # espesificando el tipo de dato
 def borrar_tutoria(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM tutoria WHERE id_tutoria = {0}'.format(id))  # en la posición 0 ira el id formateado en string
+    # en la posición 0 ira el id formateado en string
+    cur.execute('DELETE FROM tutoria WHERE id_tutoria = {0}'.format(id))
     mysql.connection.commit()
     flash('Tutoria eliminada Exitosamente')
     return redirect(url_for('TablaTutorias'))
 
 
 if __name__ == '__main__':
-    aplicacion.run(port= 3000, debug = True)
+    aplicacion.run(port=3000, debug=True)
