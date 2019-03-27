@@ -101,10 +101,10 @@ def add_tutorias():
         return redirect(url_for('Index'))
     
 
-@aplicacion.route('/editar/<id>')
+@aplicacion.route('/editar/<string:id>')
 def get_tutoria(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM tutoria WHERE id_tutoria = %s', (id))
+    cur.execute('SELECT * FROM tutoria WHERE id_tutoria = {0}'.format(id))
     datos = cur.fetchall()
     return render_template('edit-tutoria.html', tuto = datos[0])
 
