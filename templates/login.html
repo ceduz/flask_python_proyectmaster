@@ -1,7 +1,23 @@
-{% extends 'layoutlogin.html' %}
+{% extends 'layout.html' %}
 {% block titulo %} Login {% endblock %}
 
-{% block contenido %}
+{% block body %}
+
+{% with mensajes = get_flashed_messages() %}
+{% if mensajes %}
+<!-- si existe mensajes-->
+{% for mensaje in mensajes%}
+<!-- for para recorrer todos los mensajes-->
+<!-- codigo extraido de bootstrap para alertas-->
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{mensaje}}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
 
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
