@@ -11,6 +11,8 @@ aplicacion.config['MYSQL_DB'] = 'flasktutorias'
 aplicacion.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(aplicacion)
 
+# configuraciones mysecretkey para flash
+aplicacion.secret_key = 'mysecretkey'
 
 @aplicacion.route('/')
 def Index():
@@ -18,12 +20,30 @@ def Index():
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM tutoria')
     datos = cur.fetchall()
-    cur.close()
-    return render_template('index.html', tutoria = datos)
+    return render_template('index.html', tutorias = datos)
 
+@aplicacion.route('/add_tutoria', methods=['POST'])
+def add_tutorias():
+    if request.method == 'POST':
+        id_profesor = request.form['id_profesor']
+        nombre_profesor = request.form['nombre_profesor']
+        apellidos_profesor = request.form['apellidos_profesor']
+        tema_tutoria = request.form['tema_tutoria']
+        dia_tutoria = request.form['lista_dia']
+        hora_inicio = request.form['hora_inicio']
+        hora_fin = request.form['hora_fin']
+        lugar_tutoria = request.form['lugar_tutoria']
+        email_profesor = request.form['email_profesor']
+        
+        #creo variable cursor y envio la coneccion a la base de datos
+        cur = mysql.connection.cursor()
+        cur.execute('INSERT INTO tutoria (id_profesor, nombre_profesor, apellidos_profesor, tema_tutoria, dia_tutoria, hora_inicio, hora_fin, lugar_tutoria, email_profesor) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+        (id_profesor, nombre_profesor, apellidos_profesor, tema_tutoria, dia_tutoria, hora_inicio, hora_fin, lugar_tutoria, email_profesor))
+        mysql.connection.commit()
 
-# configuraciones mysecretkey para flash
-aplicacion.secret_key = 'mysecretkey'
+        flash('Tutoria agregada Exitosamente')
+
+        return redirect(url_for('Index'))
 
 #inicio configuración paginas para registar y logearse:
 @aplicacion.route('/inicio')
@@ -54,6 +74,7 @@ def login():
         contrasenaRegistro = request.form['password'].encode('utf-8')
 
         cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        #cur = mysql.connection.cursor()
         cur.execute('SELECT * FROM usuario WHERE email_usuario =%s', (emailRegistro,))
         user = cur.fetchone()
         cur.close()
@@ -74,32 +95,7 @@ def login():
 def logout():
     session.clear()
     return render_template('inicio.html')
-
-
-#fin configuración paginas para registar y logearse
-@aplicacion.route('/add_tutoria', methods=['POST'])
-def add_tutorias():
-    if request.method == 'POST':
-        id_profesor = request.form['id_profesor']
-        nombre_profesor = request.form['nombre_profesor']
-        apellidos_profesor = request.form['apellidos_profesor']
-        tema_tutoria = request.form['tema_tutoria']
-        dia_tutoria = request.form['lista_dia']
-        hora_inicio = request.form['hora_inicio']
-        hora_fin = request.form['hora_fin']
-        lugar_tutoria = request.form['lugar_tutoria']
-        email_profesor = request.form['email_profesor']
-        
-        #creo variable cursor y envio la coneccion a la base de datos
-        cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO tutoria (id_profesor, nombre_profesor, apellidos_profesor, tema_tutoria, dia_tutoria, hora_inicio, hora_fin, lugar_tutoria, email_profesor) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-        (id_profesor, nombre_profesor, apellidos_profesor, tema_tutoria, dia_tutoria, hora_inicio, hora_fin, lugar_tutoria, email_profesor))
-        mysql.connection.commit()
-
-        flash('Tutoria agregada Exitosamente')
-
-        return redirect(url_for('Index'))
-    
+#fin configuración paginas para registar y logearse   
 
 @aplicacion.route('/editar/<string:id>')
 def get_tutoria(id):
