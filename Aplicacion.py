@@ -13,17 +13,20 @@ mysql = MySQL(aplicacion)
 # configuraciones mysecretkey para flash
 aplicacion.secret_key = 'mysecretkey'
 
-
 @aplicacion.route('/')
 def Index():
+    return render_template('index.html')
+
+@aplicacion.route('/login/tutorias')
+def TablaTutorias():
     # creo variable cursor y envio la coneccion a la base de datos
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM tutoria')
     datos = cur.fetchall()
-    return render_template('index.html', tutorias=datos)
+    return render_template('tablaTutorias.html', tutorias=datos)
 
 
-@aplicacion.route('/add_tutoria', methods=['POST'])
+@aplicacion.route('/login/add_tutoria', methods=['POST'])
 def add_tutorias():
     if request.method == 'POST':
         id_profesor = request.form['id_profesor']
@@ -44,13 +47,9 @@ def add_tutorias():
 
         flash('Tutoria agregada Exitosamente')
 
-        return redirect(url_for('Index'))
+        return redirect(url_for('TablaTutorias'))
 
 # inicio configuración paginas para registar y logearse:
-@aplicacion.route('/inicio')
-def inicio():
-    return render_template('inicio.html')
-
 
 @aplicacion.route('/registrar', methods=['GET', 'POST'])
 def registro():
@@ -68,7 +67,7 @@ def registro():
         mysql.connection.commit()
         session['name'] = nombreRegistro
         session['email'] = emailRegistro
-        return redirect(url_for('inicio'))
+        return redirect(url_for('Index'))
 
 
 @aplicacion.route('/login', methods=['GET', 'POST'])
@@ -84,7 +83,7 @@ def login():
         if bcrypt.hashpw(contrasenaRegistro, datosUser[2].encode('utf-8')) == datosUser[2].encode('utf-8'):
             session['name'] = datosUser[1]
             session['email'] = datosUser[0]
-            return render_template('inicio.html')
+            return render_template('index.html')
         else:
             flash('Error en contraseña.')
             return redirect(url_for('login'))
@@ -94,7 +93,8 @@ def login():
 @aplicacion.route('/logout')
 def logout():
     session.clear()
-    return render_template('inicio.html')
+    flash('Gracias por su ingreso, vuelva pronto.')
+    return render_template('login.html')
 # fin configuración paginas para registar y logearse
 
 
@@ -135,7 +135,7 @@ def actualizacion_tutoria(id):
             """, (id_profesor, nombre_profesor, apellidos_profesor, tema_tutoria, dia_tutoria, hora_inicio, hora_fin, lugar_tutoria, email_profesor, id))
         mysql.connection.commit()
         flash('Tutoria actualizada exitosamente.')
-        return redirect(url_for('Index'))
+        return redirect(url_for('TablaTutorias'))
 
 @aplicacion.route('/borrar/<string:id>')  # espesificando el tipo de dato
 def borrar_tutoria(id):
@@ -143,7 +143,7 @@ def borrar_tutoria(id):
     cur.execute('DELETE FROM tutoria WHERE id_tutoria = {0}'.format(id))  # en la posición 0 ira el id formateado en string
     mysql.connection.commit()
     flash('Tutoria eliminada Exitosamente')
-    return redirect(url_for('Index'))
+    return redirect(url_for('TablaTutorias'))
 
 
 if __name__ == '__main__':
