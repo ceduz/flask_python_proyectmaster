@@ -62,15 +62,20 @@ def registro():
         nombreRegistro = request.form['nombre']
         emailRegistro = request.form['email']
         contrasenaRegistro = request.form['password'].encode('utf-8')
+        contrasenaRegistroDos = request.form['password_dos'].encode('utf-8')
         hash_contrasena = bcrypt.hashpw(contrasenaRegistro, bcrypt.gensalt())
 
-        cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO usuario (nombre_usuario, email_usuario, pass_usuario) VALUES (%s, %s, %s)',
-                    (nombreRegistro, emailRegistro, hash_contrasena))
-        mysql.connection.commit()
-        session['name'] = nombreRegistro
-        session['email'] = emailRegistro
-        return redirect(url_for('Index'))
+        if contrasenaRegistro == contrasenaRegistroDos:
+            cur = mysql.connection.cursor()
+            cur.execute('INSERT INTO usuario (nombre_usuario, email_usuario, pass_usuario) VALUES (%s, %s, %s)',
+            (nombreRegistro, emailRegistro, hash_contrasena))
+            mysql.connection.commit()
+            session['name'] = nombreRegistro
+            session['email'] = emailRegistro
+            return redirect(url_for('Index'))
+        else:
+            flash('Error las contraseña no coinciden.')
+            return redirect(url_for('registro'))
 
 
 @aplicacion.route('/login', methods=['GET', 'POST'])
