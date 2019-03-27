@@ -6,22 +6,22 @@
         <form action="/actualizacion/{{ tuto.0 }}" method="POST">
             <div class="form-group">
                 <input type="text" name="id_profesor" placeholder="Id del Profesor" value="{{ tuto.1 }}"
-                    class="form-control">
+                    class="form-control" required>
             </div>
             <div class="form-group">
                 <input type="text" name="nombre_profesor" placeholder="Nombre del profesor" value="{{ tuto.2 }}"
-                    class="form-control">
+                    class="form-control" required>
             </div>
             <div class="form-group">
                 <input type="text" name="apellidos_profesor" placeholder="Apellidos del profesor" value="{{ tuto.3 }}"
-                    class="form-control">
+                    class="form-control" required>
             </div>
             <div class="form-group">
                 <input type="text" name="tema_tutoria" placeholder="Tema de la tutoria" value="{{ tuto.4 }}"
-                    class="form-control">
+                    class="form-control" required>
             </div>
             <div class="form-group">
-                <select name="lista_dia" value="{{ tuto.9 }}" class="form-control">
+                <select name="lista_dia" value="{{ tuto.9 }}" class="form-control" required>
                     <option value="" disabled selected>--SLECCIONE UN DIA--</option>
                     <option value="lunes">Lunes</option>
                     <option value="martes">Martes</option>
@@ -32,19 +32,19 @@
             </div>
             <div class="form-group">
                 <input type="text" name="hora_inicio" placeholder="Hora inicio de la tutoria" value="{{ tuto.5 }}"
-                    class="form-control">
+                    class="form-control" required>
             </div>
             <div class="form-group">
                 <input type="text" name="hora_fin" placeholder="Hora fin de la tutoria" value="{{ tuto.6 }}"
-                    class="form-control">
+                    class="form-control" required>
             </div>
             <div class="form-group">
                 <input type="text" name="lugar_tutoria" placeholder="Lugar de la tutoria" value="{{ tuto.7 }}"
-                    class="form-control">
+                    class="form-control" required>
             </div>
             <div class="form-group">
-                <input type="text" name="email_profesor" placeholder="E-mail del profesor" value="{{ tuto.8 }}"
-                    class="form-control">
+                <input type="email" name="email_profesor" placeholder="E-mail del profesor" value="{{ tuto.8 }}"
+                    class="form-control" required>
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-success btn-block">

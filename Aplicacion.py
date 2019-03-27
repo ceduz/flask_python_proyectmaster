@@ -11,6 +11,17 @@ aplicacion.config['MYSQL_DB'] = 'flasktutorias'
 aplicacion.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(aplicacion)
 
+
+@aplicacion.route('/')
+def Index():
+    #creo variable cursor y envio la coneccion a la base de datos
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM tutoria')
+    datos = cur.fetchall()
+    cur.close()
+    return render_template('index.html', tutoria = datos)
+
+
 # configuraciones mysecretkey para flash
 aplicacion.secret_key = 'mysecretkey'
 
@@ -66,16 +77,6 @@ def logout():
 
 
 #fin configuración paginas para registar y logearse
-
-
-@aplicacion.route('/')
-def Index():
-    #creo variable cursor y envio la coneccion a la base de datos
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM tutoria')
-    datos = cur.fetchall()
-    return render_template('index.html', tutoria = datos)
-
 @aplicacion.route('/add_tutoria', methods=['POST'])
 def add_tutorias():
     if request.method == 'POST':
@@ -100,10 +101,10 @@ def add_tutorias():
         return redirect(url_for('Index'))
     
 
-@aplicacion.route('/editar/<string:id>')
+@aplicacion.route('/editar/<id>')
 def get_tutoria(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM tutoria WHERE id_tutoria = {0}'.format(id))
+    cur.execute('SELECT * FROM tutoria WHERE id_tutoria = %s', (id))
     datos = cur.fetchall()
     return render_template('edit-tutoria.html', tuto = datos[0])
 
