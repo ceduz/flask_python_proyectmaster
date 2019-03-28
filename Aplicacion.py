@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL, MySQLdb
-import bcrypt  # encruptación
+import bcrypt  # encriptación
 
 aplicacion = Flask(__name__)
 # Coneción a la base de datos en que servidor y usuario contraseña y la base de datos.
@@ -51,31 +51,39 @@ def add_tutorias():
 
         return redirect(url_for('TablaTutorias'))
 
+
 # inicio configuración paginas para registar y logearse:
 
 
 @aplicacion.route('/registrar', methods=['GET', 'POST'])
 def registro():
-    if request.method == 'GET':
-        return render_template('registrar.html')
-    else:
-        nombreRegistro = request.form['nombre']
-        emailRegistro = request.form['email']
-        contrasenaRegistro = request.form['password'].encode('utf-8')
-        contrasenaRegistroDos = request.form['password_dos'].encode('utf-8')
-        hash_contrasena = bcrypt.hashpw(contrasenaRegistro, bcrypt.gensalt())
-
-        if contrasenaRegistro == contrasenaRegistroDos:
-            cur = mysql.connection.cursor()
-            cur.execute('INSERT INTO usuario (nombre_usuario, email_usuario, pass_usuario) VALUES (%s, %s, %s)',
-            (nombreRegistro, emailRegistro, hash_contrasena))
-            mysql.connection.commit()
-            session['name'] = nombreRegistro
-            session['email'] = emailRegistro
-            return redirect(url_for('Index'))
+    try:
+        if request.method == 'GET':
+            return render_template('registrar.html')
         else:
-            flash('Error las contraseña no coinciden.')
-            return redirect(url_for('registro'))
+            nombreRegistro = request.form['nombre']
+            emailRegistro = request.form['email']
+            contrasenaRegistro = request.form['password'].encode('utf-8')
+            contrasenaRegistroDos = request.form['password_dos'].encode(
+                'utf-8')
+            hash_contrasena = bcrypt.hashpw(
+                contrasenaRegistro, bcrypt.gensalt())
+
+            if contrasenaRegistro == contrasenaRegistroDos:
+                cur = mysql.connection.cursor()
+                cur.execute('INSERT INTO usuario (nombre_usuario, email_usuario, pass_usuario) VALUES (%s, %s, %s)',
+                            (nombreRegistro, emailRegistro, hash_contrasena))
+                mysql.connection.commit()
+                session['name'] = nombreRegistro
+                session['email'] = emailRegistro
+                return redirect(url_for('Index'))
+            else:
+                flash('Error las contraseña no coinciden.')
+                return redirect(url_for('registro'))
+
+    except:
+        flash('Algún dato se encuentra errado.')
+        return redirect(url_for('registro'))
 
 
 @aplicacion.route('/login', methods=['GET', 'POST'])
@@ -110,7 +118,7 @@ def logout():
     session.clear()
     flash('Gracias por su ingreso, vuelva pronto.')
     return render_template('login.html')
-# fin configuración paginas para registar y logearse
+# fin configuración paginas para registrar y logearse
 
 
 @aplicacion.route('/editar/<string:id>')
